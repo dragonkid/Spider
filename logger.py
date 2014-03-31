@@ -1,39 +1,33 @@
-#!/usr/bin/env python
+#!/usr/bin python
 # -*- coding: UTF-8 -*-
-"""
-文件名 : logProcess.py
-版本号 : 1.0
-作者 : yangfan
-生成日期 : 2012-03-12
-功能描述 : 规划工具日志类
-修改历史 （日期 作者 修改内容） :
-"""
-import sys
+
 import os
 import logging
 import logging.handlers
-from common import runpath
-strLevel = logging.INFO
-strFileName = os.path.join(runpath, 'Logs\log.txt')
-strForMat = '%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)s >> %(message)s'
-logging.basicConfig(filename = os.path.join(runpath, 'Logs\log.txt')
-, level = strLevel
-, filemode = 'w'
-, format = '%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)s >> %(message)s'
-# , datefmt='%a, %d %b %Y %H:%M:%S'
-)
-#定义一个StreamHandler，将DEBUG级别或更高的日志信息打印到标准错误，并将其添加到当前的日志处理对象#
-log = logging.getLogger('PDT')
-log.setLevel(strLevel)
-console = logging.StreamHandler(sys.stdout)
-formatter = logging.Formatter(strForMat)
-console.setFormatter(formatter)
-log.addHandler(console)
-# 使用方法如下
-# log.debug("dubug messagess")
-# log.info("info message")
-# log.warning("warning message")
-# log.errot("error message")
-# def CloseLog(self):
-#
-# logging.shutdown()
+
+# defines
+_MYLOG = 'spider.log'
+_LOG_FORMAT = '%(asctime)s %(levelname)s [%(threadName)s][%(filename)s][%(lineno)d] >> %(message)s'
+_MAX_LOG_SIZE = 1024*1024
+_BACKUP_COUNT = 5
+
+logger = logging.getLogger('Spider')
+# create formatter.
+_fmt = logging.Formatter(_LOG_FORMAT)
+# basic log config
+logging.basicConfig(level = logging.DEBUG, format = _LOG_FORMAT)
+# create rotating file handler.
+_logPath = os.path.join(os.path.realpath(''), _MYLOG)
+fileHandler = logging.handlers.RotatingFileHandler(_logPath, 'a', _MAX_LOG_SIZE, _BACKUP_COUNT)
+fileHandler.setLevel(logging.DEBUG)
+fileHandler.setFormatter(_fmt)
+
+logger.addHandler(fileHandler)
+
+# test start.
+if __name__ == '__main__':
+    logger.debug('debug')
+    logger.info('info')
+    logger.warning('warning')
+    logger.debug('test = %s', _MYLOG)
+# test end.

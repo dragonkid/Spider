@@ -3,8 +3,7 @@ import threading
 import Queue
 import traceback
 
-# __name__ == 'threadpool'
-__name__ == '__main__'
+from logger import logger
 
 _TIMEOUT = 10   # default timeout
 
@@ -186,7 +185,7 @@ if __name__ == '__main__':
         return res
     
     def printResult(request, result):
-        print '---Result from request %s: %r' % (request._requestID, result)
+        logger.info('Result from request %s: %r', request._requestID, result)
         
     main = ThreadPool(3)
     for i in range(40):
