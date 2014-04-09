@@ -5,7 +5,7 @@ from BeautifulSoup import BeautifulSoup
 import urllib2
 import re
 
-from thread_pool import Scheduler, DownloadRequest
+from thread_pool import Scheduler, WorkRequest
 from logger import logger
 import dboperate
 
@@ -21,6 +21,7 @@ _HEADERS = {
            }
 _CHARACTER_SET = 'GB18030'
 _KEY = ''
+_TIMEOUT = 10
 
 
 # functions
@@ -107,11 +108,12 @@ def gethtml(url=''):
     @param url: url which you want to get content from it.
     @return: content get from url.
     """
-    if not re.match(r'^https?:/{2}\w.+$', url):
+    if not re.match(r'^https?://.*?$', url):
         return ''
     req = urllib2.Request(url=url, headers=_HEADERS)
     try:
-        resp = urllib2.urlopen(req)
+        # must set timeout. if not, thread may block here.
+        resp = urllib2.urlopen(req, timeout=_TIMEOUT)
     except:
         logger.error('url %s open error.', url)
         return ''
@@ -143,7 +145,7 @@ def gethtml(url=''):
 if __name__ == '__main__':
     results = []
     threadPool = Scheduler(5)
-    firstReq = DownloadRequest(gethtml, args=[_ORIGIN_URL], callback=parseContent)
+    firstReq = WorkRequest(gethtml, args=[_ORIGIN_URL], callback=parseContent)
     threadPool.putRequest(firstReq)
     while True:
         threadPool.processing(2)

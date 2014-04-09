@@ -35,7 +35,7 @@ def _handle_thread_exception(request, exc_info):
 
 
 # classes
-class DownloadRequest(object):
+class WorkRequest(object):
     """
     @param callable: function want to execute.
     @param args: list param.
@@ -55,7 +55,7 @@ class DownloadRequest(object):
         self.reqLevel = reqLevel
 
     def __str__(self):
-        return "DownloadRequest:\n id = %s\n exception = %s\n args = %r\n kwds = %r"\
+        return "WorkRequest:\n id = %s\n exception = %s\n args = %r\n kwds = %r"\
                 % self._requestID, self.exception, self.args, self.kwds
 
 
@@ -73,7 +73,7 @@ class WorkerThread(threading.Thread):
         self._respQueue = respQueue
         self._timeout = timeout
         # set a flag to indicate whether this worker still working.
-        self.__start()
+        self.start()
 
     def run(self):
         """
@@ -86,9 +86,6 @@ class WorkerThread(threading.Thread):
                 logger.debug('get request from reqQueue. reqQueue size: %d', self._reqQueue.qsize())
             except Queue.Empty:
                 logger.info('still no request pending.')
-                break
-            except:
-                logger.error('get from reqQueue raise other exceptions.')
                 break
             try:
                 result = request.callable(*request.args, **request.kwds)
@@ -138,7 +135,7 @@ class Scheduler(object):
                     if not urls:
                         continue
                     for url in urls:
-                        nextReq = DownloadRequest(callable_=request.callable, \
+                        nextReq = WorkRequest(callable_=request.callable, \
                                               args=[url], callback=request.callback,\
                                               reqLevel=request.reqLevel+1)
                         self.putRequest(nextReq)
@@ -147,7 +144,7 @@ class Scheduler(object):
                 break
 
     def putRequest(self, request, block=True, timeout=_TIMEOUT):
-        assert isinstance(request, DownloadRequest)
+        assert isinstance(request, WorkRequest)
         try:
             self._reqQueue.put(request, block, timeout)
         except Queue.Full:
@@ -176,7 +173,7 @@ if __name__ == '__main__':
 
     main = Scheduler(3)
     for i in range(10):
-        req = DownloadRequest(doWork, args=[i], callback=printResult)
+        req = WorkRequest(doWork, args=[i], callback=printResult)
         main.putRequest(req)
 
     print '-' * 20, main.workerAliveSize(), '-' * 20
