@@ -25,7 +25,7 @@ class Timer(object):
 
 
 # exceptions
-class ParaError(Exception):
+class ParameterInvalid(Exception):
     """
     raise when parameters invalid.
     """
@@ -38,9 +38,10 @@ class RepeatTimer(Thread):
         @param func: function invoked at a configureble interval by a looping thread.
         @param interval: invoke interval. must be positive or zero.
         @param counts: invoke counts. must be positive or zero.
+                       if zero, continual until cancle called.
         """
         if not callable(func) or interval < 0 or counts < 0:
-            raise ParaError
+            raise ParameterInvalid
         Thread.__init__(self)
         self.__func = func
         self.__interval = interval
@@ -48,6 +49,9 @@ class RepeatTimer(Thread):
         self.__args = args
         self.__kwargs = kwargs
         self.__finished = Event()
+        self.setName('RepeatTimer')
+        # set daemon true for terminate RepeatTimer when main thread exit.
+        self.setDaemon(True)
         self.start()
 
     def cancle(self):
@@ -61,3 +65,16 @@ class RepeatTimer(Thread):
                 break
             self.__func(*self.__args, **self.__kwargs)
             count += 1
+
+if __name__ == '__main__':
+    a = ['aaaa']
+    b = ['bbbb']
+    c = ['cccc']
+    with Timer() as t:
+        c = a + b + c
+    a = ['aaaa']
+    b = ['bbbb']
+    c = ['cccc']
+    with Timer() as t:
+        c.extend(a)
+        c.extend(b)
