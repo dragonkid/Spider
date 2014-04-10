@@ -20,7 +20,6 @@ _HEADERS = {
            'User-Agent': 'Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US; rv:1.9.1.6) \
                            Gecko/20091201 Firefox/3.5.6'
            }
-_CHARACTER_SET = 'GB18030'
 _TIMEOUT = 10  # default timeout
 
 # condition variables of spider.
@@ -151,27 +150,17 @@ class Downloader(threading.Thread):
             content = gzipFile.read()
             gzipFile.close()
         # decode the content by character set of the page.
-        charset = self.__getContentCharset(content)
-        if charset == u'gbk' or charset == u'gb2312' or charset == u'gb18030':
+        try:
+            content = content.decode('GB18030')
+        except:
+            logger.error('decode with %s failed.')
             try:
-                content = content.decode(_CHARACTER_SET)
+                content = content.decode('utf-8')
             except:
-                logger.error('decode with %s failed. content is \n%s', charset, content)
+                logger.error('decode with utf-8 failed.')
                 return u''
         logger.info('html download complete.')
         return content
-
-    def __getContentCharset(self, content):
-        # <meta http-equiv="Content-type" content="text/html; charset=gb2312" />
-        if not content:
-            return ''
-        pattern = re.compile(u'<meta http-equiv="Content-type" content=".*?charset=(.*?)" />')
-        charset = pattern.findall(content)
-        if charset:
-            logger.debug('charset is %s', charset[0])
-            return charset[0].lower()
-        else:
-            return ''
 
 
 class Parser(object):
