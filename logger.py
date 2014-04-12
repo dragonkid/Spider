@@ -10,15 +10,11 @@ _MYLOG = 'spider.log'
 _LOG_FORMAT = '%(asctime)s %(levelname)s [%(threadName)s][%(filename)s][%(lineno)d] >> %(message)s'
 _MAX_LOG_SIZE = 50 * 1024 * 1024
 _BACKUP_COUNT = 5
-# _DEFAULT_LEVEL = logging.DEBUG
-_DEFAULT_LEVEL = logging.ERROR
-# _DEFAULT_LEVEL = logging.CRITICAL
+_DEFAULT_LEVEL = logging.DEBUG
 
 logger = logging.getLogger('Spider')
 # create formatter.
 _fmt = logging.Formatter(_LOG_FORMAT)
-# basic log config
-# logging.basicConfig(level=_DEFAULT_LEVEL, format=_LOG_FORMAT)
 # create rotating file handler.
 _logPath = os.path.join(os.path.realpath(''), _MYLOG)
 fileHandler = logging.handlers.RotatingFileHandler(_logPath, 'w')

@@ -16,7 +16,7 @@ class Timer(object):
         self.__start = time.time()
         return self
 
-    def __exit__(self, *args):
+    def __exit__(self, tp, value,  traceback):
         self.__end = time.time()
         self.secs = self.__end - self.__start
         self.msecs = self.secs * 1000  # millisecs

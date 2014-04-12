@@ -8,6 +8,7 @@ import Queue
 import traceback
 import urllib2
 import re
+import time
 
 # import my module.
 from logger import logger
@@ -20,7 +21,7 @@ _HEADERS = {
            'User-Agent': 'Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US; rv:1.9.1.6) \
                            Gecko/20091201 Firefox/3.5.6'
            }
-_TIMEOUT = 10  # default timeout
+_TIMEOUT = 20  # default timeout
 
 # condition variables of spider.
 _KEY = ''
@@ -43,6 +44,17 @@ def initSpider(poolSize, level, key):
     scheduler.putRequest(firstReq)
     RepeatTimer(func=scheduler.getProcessState, interval=10)
     return scheduler
+
+
+def spider(poolSize=5, level=1, key='', dbfile='', url=''):
+    if url:
+        _ORIGIN_URL = url
+    print 'spider start to work.'
+    scheduler = initSpider(poolSize, level, key)
+    scheduler.processing()
+    dbopt = dboperate.DBOperation(dbfile)
+    dbopt.insertMany(scheduler.resultBuf)
+    print 'spider end to work.'
 
 
 # execptions
@@ -93,10 +105,11 @@ class Downloader(threading.Thread):
     def __init__(self, reqQueue, respQueue, timeout=_TIMEOUT):
         threading.Thread.__init__(self)
         # set as daemon.
-        self.setDaemon(False)
+        self.setDaemon(True)
         self.__reqQueue = reqQueue
         self.__respQueue = respQueue
         self.__timeout = timeout
+        self.event = threading.Event()
         # set a flag to indicate whether this worker still working.
         self.start()
 
@@ -106,6 +119,9 @@ class Downloader(threading.Thread):
         """
         logger.debug('thread working.')
         while True:
+            if self.event.is_set():
+                # interrupted by stop function.
+                break
             try:
                 downloadReq = self.__reqQueue.get(True, self.__timeout)
                 logger.debug('get request from reqQueue. reqQueue size: %d', \
@@ -153,11 +169,10 @@ class Downloader(threading.Thread):
         try:
             content = content.decode('GB18030')
         except:
-            logger.error('decode with %s failed.')
             try:
                 content = content.decode('utf-8')
             except:
-                logger.error('decode with utf-8 failed.')
+                logger.error('decode failed.')
                 return u''
         logger.info('html download complete.')
         return content
@@ -226,6 +241,7 @@ class Scheduler(object):
         self.__reqQueue = Queue.Queue(reqSize)
         self.__respQueue = Queue.Queue(respSize)
         self.__downloaders = []
+        self.__start = time.time()
         # buffer results, write to DB at the end.
         self.resultBuf = []
         self.__createWorkers(poolSize, timeout)
@@ -255,6 +271,7 @@ class Scheduler(object):
                 # in this case, no downloader(all finished because of no more requests)
                 # continually put content into response queue.
                 if self.downloadersAlived() == 0:
+                    print 'total time costs: %s' % unicode(time.time() - self.__start)
                     break
                 continue
             parser = Parser(content)
@@ -269,6 +286,11 @@ class Scheduler(object):
             for url in urls:
                 nextReq = DownloadRequest(url, request.urlLevel+1)
                 self.putRequest(nextReq)
+
+    def stop(self):
+        for downloader in self.__downloaders:
+            if downloader.is_alive():
+                downloader.event.set()
 
     def putRequest(self, request, block=True, timeout=_TIMEOUT):
         assert isinstance(request, DownloadRequest)
@@ -293,13 +315,14 @@ class Scheduler(object):
                 + u'\n\tRequest queue size: ' + unicode(self.__reqQueue.qsize())\
                 + u'\n\tResponse queue size: ' + unicode(self.__respQueue.qsize())\
                 + u'\n\tResult size: ' + unicode(len(self.resultBuf))\
+                + u'\n\tTime costs:' + unicode(time.time() - self.__start)\
                 + u'\n'
         print state
 
 # test
 if __name__ == '__main__':
     print 'spider start to work.'
-    scheduler = initSpider(5, 2, u'')
+    scheduler = initSpider(5, 1, u'')
     scheduler.processing()
     dbopt = dboperate.DBOperation()
     dbopt.insertMany(scheduler.resultBuf)
