@@ -5,6 +5,15 @@
 spider the 'url' into level 'deep',
 and get the pages which match the 'key'.
 
+basic frame:
+    Scheduler-----url----->Downloader
+        A                      |
+        |                      |
+  DownloadRequest       content(from resqQueue)
+        |                      |
+        |                      V
+     reqQueue<----urls-------Parser---keyMatched-->results
+
 use like this:
 >>> scheduler = initSpider(5, 1, u'')
 >>> scheduler.processing()
