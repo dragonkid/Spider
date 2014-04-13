@@ -6,6 +6,14 @@ from logger import logger
 
 
 class DBOperation(object):
+    """
+    insert multi-records into database.
+
+    use like thie:
+    >>> dbopt = DBOperation('test.db')
+    >>> lst = [(u'http://www.baidu.com',  u'aaa'), (u'http://www.baidu.com11',  u'bbb')]
+    >>> dbopt.insertMany(lst)
+    """
     def __init__(self, dbname='spider.db'):
         self.__dbconn = sqlite3.connect(dbname)
         self.__dbcur = self.__dbconn.cursor()
@@ -28,8 +36,9 @@ class DBOperation(object):
         self.__dbconn.commit()
 
 
+def _test():
+    import doctest
+    doctest.testmod()
+
 if __name__ == '__main__':
-    lst = [(u'http://www.baidu.com',  u'aaa'),\
-           (u'http://www.baidu.com11',  u'bbb')]
-    dbopt = DBOperation()
-    dbopt.insertMany(lst)
+    _test()

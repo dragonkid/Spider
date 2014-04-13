@@ -1,6 +1,18 @@
 #!/usr/bin python
 # -*- coding: UTF-8 -*-
 
+"""
+supply a logger has been initiated.
+the log will be write to spider.log in the same path of logger.
+
+use like this:
+>>> setLogLevel(logging.DEBUG)
+>>> logger.info('info')
+>>> logger.debug('my log: %s', _MYLOG)
+>>> logger.debug('debug')
+>>> logger.warning('warning')
+"""
+
 import os
 import logging
 import logging.handlers
@@ -27,11 +39,11 @@ logger.addHandler(fileHandler)
 def setLogLevel(level=_DEFAULT_LEVEL):
     logger.setLevel(level)
 
-# test start.
+
+def _test():
+    import doctest
+    doctest.testmod()
+    print 'log file: %s' % _logPath
+
 if __name__ == '__main__':
-    setLogLevel(logging.INFO)
-    logger.debug('debug')
-    logger.info('info')
-    logger.warning('warning')
-    logger.debug('test = %s', _MYLOG)
-# test end.
+    _test()

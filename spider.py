@@ -1,8 +1,16 @@
 #!/usr/bin python
 # -*- coding: UTF-8 -*-
 
+"""
+spider the 'url' into level 'deep',
+and get the pages which match the 'key'.
+
+use like this:
+>>> scheduler = initSpider(5, 1, u'')
+>>> scheduler.processing()
+"""
+
 # import std module.
-import sys
 import threading
 import Queue
 import traceback
@@ -18,8 +26,8 @@ from common import RepeatTimer
 #defines
 _ORIGIN_URL = 'http://sina.com.cn'
 _HEADERS = {
-           'User-Agent': 'Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US; rv:1.9.1.6) \
-                           Gecko/20091201 Firefox/3.5.6'
+           'User-Agent': 'Mozilla/5.0 (Windows; U; Windows NT 6.1; \
+                          en-US; rv:1.9.1.6) Gecko/20091201 Firefox/3.5.6'
            }
 _TIMEOUT = 20  # default timeout
 
@@ -319,12 +327,10 @@ class Scheduler(object):
                 + u'\n'
         print state
 
-# test
+
+def _test():
+    import doctest
+    doctest.testmod()
+
 if __name__ == '__main__':
-    print 'spider start to work.'
-    scheduler = initSpider(5, 1, u'')
-    scheduler.processing()
-    dbopt = dboperate.DBOperation()
-    dbopt.insertMany(scheduler.resultBuf)
-    print 'spider end to work.'
-# end
+    _test()
