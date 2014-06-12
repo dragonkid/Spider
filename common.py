@@ -5,6 +5,17 @@ import time
 from threading import Thread, Event
 
 
+def get_root():
+    '''
+    get root permission. make *.py can be executed without 'sudo python'.
+    but there is some problem when using this in eclipse console and python idle.
+    '''
+    import os
+    import sys
+    if os.geteuid():
+        args = [sys.executable] + sys.argv
+        os.execlp('sudo', 'sudo', *args)
+
 class Timer(object):
     """
     this class used for test performance on time.
