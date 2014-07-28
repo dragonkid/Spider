@@ -75,7 +75,7 @@ class RepeatTimer(Thread):
             count += 1
 
 
-def timeout_limit(func, seconds, default=None):
+def timeout_limit(func, args, seconds, default=None):
     """
     限制func执行的最大超时时长, 如果超过这个时间, 就返回default.
     """
@@ -83,12 +83,12 @@ def timeout_limit(func, seconds, default=None):
 
     def inner():
         try:
-            ret.append(func())
+            ret.append(func(args))
         except Exception, e:
             # do something
             pass
 
-    t = Thread(target=inner())
+    t = Thread(target=inner)
     t.setDaemon(True)
     t.start()
     t.join(seconds)
