@@ -1,16 +1,12 @@
 #!/usr/bin python
 # -*- coding: UTF-8 -*-
 
-from BeautifulSoup import BeautifulSoup
 import urllib2
 import re
 
 from thread_pool import Scheduler, WorkRequest
 from logger import logger
 import dboperate
-
-# test
-from common import Timer
 
 
 # defines

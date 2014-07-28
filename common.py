@@ -1,8 +1,8 @@
 #!/usr/bin python
 # -*- coding: UTF-8 -*-
 
-import time
 from threading import Thread, Event
+import time
 
 
 def get_root():
@@ -15,6 +15,7 @@ def get_root():
     if os.geteuid():
         args = [sys.executable] + sys.argv
         os.execlp('sudo', 'sudo', *args)
+
 
 class Timer(object):
     """
@@ -72,3 +73,26 @@ class RepeatTimer(Thread):
                 break
             self.__func(*self.__args, **self.__kwargs)
             count += 1
+
+
+def timeout_limit(func, seconds, default=None):
+    """
+    限制func执行的最大超时时长, 如果超过这个时间, 就返回default.
+    """
+    ret = []
+
+    def inner():
+        try:
+            ret.append(func())
+        except Exception, e:
+            # do something
+            pass
+
+    t = Thread(target=inner())
+    t.setDaemon(True)
+    t.start()
+    t.join(seconds)
+
+    if not t.isAlive() and len(ret):
+        return ret.pop()
+    return default

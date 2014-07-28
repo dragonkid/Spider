@@ -2,12 +2,11 @@
 # -*- coding: UTF-8 -*-
 
 import os
-import logging
 import logging.handlers
 
 # defines
 _MYLOG = 'spider.log'
-_LOG_FORMAT = '%(asctime)s %(levelname)s [%(threadName)s][%(filename)s][%(funcName)s][%(lineno)d] >> %(message)s'
+_LOG_FORMAT = '%(asctime)s %(levelname)s [%(filename)s][%(funcName)s][%(lineno)d] >> %(message)s'
 _MAX_LOG_SIZE = 50 * 1024 * 1024
 _BACKUP_COUNT = 5
 _DEFAULT_LEVEL = logging.DEBUG

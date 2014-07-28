@@ -137,7 +137,7 @@ class Scheduler(object):
                     for url in urls:
                         nextReq = WorkRequest(callable_=request.callable, \
                                               args=[url], callback=request.callback,\
-                                              reqLevel=request.reqLevel+1)
+                                              reqLevel=request.reqLevel + 1)
                         self.putRequest(nextReq)
             except Queue.Empty:
 #                 logger.debug('respQueue is empty.')
