@@ -55,19 +55,27 @@ class RepeatTimer(Thread):
             raise ParaError
         Thread.__init__(self)
         self.__func = func
+        self.name = 'repeat_timer'
         self.__interval = interval
         self.__counts = counts
         self.__args = args
         self.__kwargs = kwargs
         self.__finished = Event()
+        self.__stop = False
         self.start()
 
     def cancle(self):
         self.__finished.set()
 
+    def stop(self):
+        self.__stop = True
+
+    def modify_interval(self, new_interval):
+        self.__interval = new_interval
+
     def run(self):
         count = 0
-        while self.__counts == 0 or self.__counts > count:
+        while self.__counts == 0 or self.__counts > count or self.__stop == True:
             self.__finished.wait(self.__interval)
             if self.__finished.is_set():
                 break
@@ -96,3 +104,10 @@ def timeout_limit(func, args, seconds, default=None):
     if not t.isAlive() and len(ret):
         return ret.pop()
     return default
+
+if __name__ == '__main__':
+    def test(a, b):
+        print a, b
+    a = 10
+    b = 20
+    RepeatTimer(func=test, interval=1, args=(a, b))
